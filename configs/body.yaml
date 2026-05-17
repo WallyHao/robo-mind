@@ -1,0 +1,32 @@
+# Body process configuration — OmniGibson simulation parameters
+
+scene:
+  type: InteractiveTraversableScene
+  scene_model: Rs_int
+
+robot:
+  type: Fetch
+  obs_modalities: [rgb]
+  action_type: continuous
+  action_normalize: true
+
+env:
+  canvas_width: 640
+  canvas_height: 480
+
+timing:
+  odom_publish_every_n_steps: 3    # ~20 Hz
+  camera_publish_every_n_steps: 10  # ~6 Hz
+  velocity_decay: 0.9               # per-step action decay factor
+
+lcm:
+  subscribe:
+    - channel: /cmd_vel
+  publish:
+    odom:
+      channel: /odom
+      rate_hz: 20
+    camera:
+      channel: /camera_rgb
+      rate_hz: 6
+      jpeg_quality: 75
