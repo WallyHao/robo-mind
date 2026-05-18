@@ -41,7 +41,6 @@ conda activate robomind
 pip install -e ".[dev]"
 ```
 
-> **国内加速**: pip 安装时可用清华镜像:
 > ```bash
 > pip install -e ".[dev]" -i https://pypi.tuna.tsinghua.edu.cn/simple
 > ```
@@ -72,7 +71,6 @@ cd ..
 **Pi05 Model** (training only, optional)
 
 ```bash
-# 国内推荐使用 HuggingFace 镜像站，否则下载 14GB 极易超时
 export HF_ENDPOINT=https://hf-mirror.com
 
 pip install huggingface_hub

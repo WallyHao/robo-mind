@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -29,7 +30,14 @@ _COLOR_DIM = "dim"
 processes: list[subprocess.Popen[bytes]] = []
 
 
+def _load_dotenv() -> None:
+    env_file = _PROJECT_ROOT / ".env"
+    if env_file.exists():
+        load_dotenv(dotenv_path=env_file, override=False)
+
+
 def main() -> None:
+    _load_dotenv()
     console.print()
     console.print(
         Panel.fit(
