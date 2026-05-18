@@ -5,6 +5,7 @@ import dataclasses
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import numpy.typing as npt
 
 if TYPE_CHECKING:
     from dimos.msgs.sensor_msgs.Image import Image as RoboImage
@@ -13,11 +14,24 @@ if TYPE_CHECKING:
 # We re-export them here so the rest of the codebase has a single import source.
 # These may raise ImportError if dimOS is not installed — the caller is expected
 # to configure sys.path before importing this module.
-from dimos.msgs.geometry_msgs.Twist import Twist  # noqa: F401
 from dimos.msgs.geometry_msgs.Pose import Pose  # noqa: F401
+from dimos.msgs.geometry_msgs.Twist import Twist  # noqa: F401
 from dimos.msgs.nav_msgs.Odometry import Odometry  # noqa: F401
 from dimos.msgs.sensor_msgs.Image import Image as RoboImage  # noqa: F401
 from dimos.msgs.sensor_msgs.Image import ImageFormat  # noqa: F401
+
+__all__ = [
+    "Twist",
+    "Pose",
+    "Odometry",
+    "RoboImage",
+    "ImageFormat",
+    "Task",
+    "BBox",
+    "OpenAICompatibleVlModel",
+    "to_numpy_rgb",
+    "find_rgb_obs",
+]
 
 
 @dataclasses.dataclass
@@ -72,7 +86,7 @@ class OpenAICompatibleVlModel:
         return response.choices[0].message.content or ""
 
 
-def to_numpy_rgb(rgb_value: object) -> np.ndarray:
+def to_numpy_rgb(rgb_value: object) -> npt.NDArray[np.uint8]:
     """Convert OmniGibson observation to uint8 HxWx3 numpy array."""
     if hasattr(rgb_value, "detach"):
         rgb_value = rgb_value.detach()

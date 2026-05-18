@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from .base import Skill, SkillResult
+from .base import Skill
 
 logger = logging.getLogger(__name__)
 

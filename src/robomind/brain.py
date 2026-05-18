@@ -5,10 +5,8 @@ import logging
 import os
 import sys
 import traceback
-from pathlib import Path
 
 from robomind.comm.lcm_bridge import LcmBridge
-from robomind.comm.types import Task
 from robomind.config.brain_config import BrainConfig
 from robomind.config.loader import load_brain_config, load_task_planner_prompt
 from robomind.llm.errors import LLMParseError
@@ -97,13 +95,13 @@ def main() -> None:
         logger.warning("VLM not configured, look/navigate_to_object will be unavailable")
 
     registry = SkillRegistry()
-    registry.register(NavigateSkill(lcm))
+    registry.register(NavigateSkill(lcm))  # type: ignore[arg-type]
     registry.register(StopSkill(lcm))
-    registry.register(TurnSkill(lcm))
+    registry.register(TurnSkill(lcm))  # type: ignore[arg-type]
     registry.register(GetPositionSkill(lcm))
     if vl_model is not None:
-        registry.register(LookSkill(lcm, vl_model))
-        registry.register(NavigateToObjectSkill(lcm, vl_model))
+        registry.register(LookSkill(lcm, vl_model))  # type: ignore[arg-type]
+        registry.register(NavigateToObjectSkill(lcm, vl_model))  # type: ignore[arg-type]
 
     logger.info("brain ready | %d skills registered", len(registry))
 
@@ -160,7 +158,11 @@ def _dry_run(planner: TaskPlanner, command: str) -> None:
     try:
         tasks = planner.parse(command)
         for i, t in enumerate(tasks, 1):
-            print(f"  [{i}] {t.skill}: {json.dumps(t.params, ensure_ascii=False)}  # {t.description}")
+            print(
+                f"  [{i}] {t.skill}: "
+                f"{json.dumps(t.params, ensure_ascii=False)}"
+                f"  # {t.description}"
+            )
         print()
     except LLMParseError as e:
         print(f"LLM response could not be parsed: {e}")

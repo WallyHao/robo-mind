@@ -3,14 +3,12 @@ from __future__ import annotations
 import logging
 import os
 import sys
-import time
-from pathlib import Path
+from typing import Any, cast
 
 import numpy as np
 
 from robomind.comm.lcm_bridge import LcmBridge
-from robomind.comm.types import Odometry, Pose, RoboImage, ImageFormat, find_rgb_obs, to_numpy_rgb
-from robomind.config.body_config import BodyConfig
+from robomind.comm.types import ImageFormat, Odometry, Pose, RoboImage, find_rgb_obs, to_numpy_rgb
 from robomind.config.loader import load_body_config
 
 logger = logging.getLogger("robomind.body")
@@ -106,7 +104,7 @@ def main() -> None:
         env.close()
 
 
-def _publish_odom(lcm: LcmBridge, robot: object) -> None:
+def _publish_odom(lcm: LcmBridge, robot: Any) -> None:
     try:
         pos, ori = robot.get_position_orientation()
         pose = Pose(
@@ -126,14 +124,14 @@ def _publish_odom(lcm: LcmBridge, robot: object) -> None:
 def _publish_camera(
     lcm: LcmBridge,
     obs: dict[str, object],
-    robot: object,
+    robot: Any,
     *,
     quality: int = 75,
     source_logged: bool,
     missing_logged: bool,
 ) -> None:
     try:
-        robot_obs = obs.get(robot.name, {})
+        robot_obs = cast(dict[str, object], obs.get(robot.name, {}))
         rgb_match = find_rgb_obs(robot_obs, f"obs[{robot.name}]")
         if rgb_match is None:
             rgb_match = find_rgb_obs(obs, "obs")

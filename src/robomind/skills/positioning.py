@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .base import Skill
-
 if TYPE_CHECKING:
     from robomind.comm.lcm_bridge import LcmBridge
 

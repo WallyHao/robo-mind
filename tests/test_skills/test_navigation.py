@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import pytest
 from robomind.skills.navigation import StopSkill
-from robomind.skills.registry import SkillRegistry
 from robomind.skills.positioning import GetPositionSkill
+from robomind.skills.registry import SkillRegistry
 
 
 class FakeLcmBridge:

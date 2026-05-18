@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 from robomind.llm.vl_model import VlModelProtocol, get_object_bbox
 
-from .base import Skill
-
 if TYPE_CHECKING:
     from robomind.comm.lcm_bridge import LcmBridge
 

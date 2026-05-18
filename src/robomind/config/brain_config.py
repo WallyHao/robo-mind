@@ -58,4 +58,9 @@ class BrainConfig(BaseModel):
 
     @property
     def vlm_backend_config(self) -> VlmBackendConfig:
-        return getattr(self.vlm, self.vlm.backend)
+        _backends: dict[str, VlmBackendConfig] = {
+            "qwen": self.vlm.qwen,
+            "deepseek": self.vlm.deepseek,
+            "openai": self.vlm.openai,
+        }
+        return _backends[self.vlm.backend]

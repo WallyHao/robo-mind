@@ -3,11 +3,11 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from typing import Any, Callable
+from collections.abc import Callable
 
 import lcm
 
-from .types import Odometry, Twist, RoboImage
+from .types import Odometry, RoboImage, Twist
 
 logger = logging.getLogger(__name__)
 

@@ -4,8 +4,6 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from .base import Skill
-
 if TYPE_CHECKING:
     from robomind.comm.lcm_bridge import LcmBridge
 

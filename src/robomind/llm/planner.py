@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any
 
 from robomind.comm.types import Task
 
@@ -42,18 +41,23 @@ class TaskPlanner:
 
         resp = client.chat.completions.create(
             model=model,
-            messages=messages,
+            messages=messages,  # type: ignore[arg-type]
             temperature=self._temperature,
         )
-        raw = resp.choices[0].message.content.strip()
+        content = resp.choices[0].message.content
+        if content is None:
+            raise LLMParseError("LLM returned empty content")
+        raw = content.strip()
 
         raw = self._strip_markdown_fence(raw)
 
         try:
             data = json.loads(raw)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as err:
             logger.error("LLM response parse failed, raw=%s", raw)
-            raise LLMParseError(f"failed to parse LLM output as JSON: {raw[:200]}")
+            raise LLMParseError(
+                f"failed to parse LLM output as JSON: {raw[:200]}"
+            ) from err
 
         if not isinstance(data, list):
             raise LLMParseError(f"expected JSON array, got {type(data).__name__}")

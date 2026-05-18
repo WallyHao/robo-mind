@@ -17,7 +17,7 @@ _CONFIGS_DIR = _PROJECT_ROOT / "configs"
 
 
 def _load_yaml(path: Path) -> dict[str, object]:
-    with open(path, "r") as f:
+    with open(path) as f:
         data = yaml.safe_load(f)
     if not isinstance(data, dict):
         raise ValueError(f"expected a mapping in {path}, got {type(data).__name__}")
