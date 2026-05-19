@@ -1,7 +1,12 @@
 .PHONY: install lint typecheck test run clean
 
 SHELL := /bin/bash
-CONDA_ENV_PREFIX := /media/waliwuao/WorkSpace/robomind_env
+
+-include .env
+
+CONDA_ENV_PREFIX ?=
+ISAAC_SIM_PATH ?=
+
 _CONDA_RUN := $(shell test -d $(CONDA_ENV_PREFIX) && echo "conda run --prefix $(CONDA_ENV_PREFIX)" || echo "")
 
 install:
@@ -21,10 +26,8 @@ test:
 		PYTHONPATH="" pytest; \
 	fi
 
-ISAAC_SIM_PATH := /media/waliwuao/WorkSpace/isaac_sim
-
 run:
-	@if [ -d "$(CONDA_ENV_PREFIX)" ]; then \
+	@if [ -d "$(CONDA_ENV_PREFIX)" ] && [ -n "$(ISAAC_SIM_PATH)" ]; then \
 		eval "$$(conda shell.bash hook)" && \
 		conda activate "$(CONDA_ENV_PREFIX)" && \
 		export ISAAC_PATH="$(ISAAC_SIM_PATH)" && \
@@ -32,6 +35,10 @@ run:
 		export CARB_APP_PATH="$(ISAAC_SIM_PATH)/kit" && \
 		export LD_LIBRARY_PATH="$$LD_LIBRARY_PATH:$(ISAAC_SIM_PATH)/.:$(ISAAC_SIM_PATH)/kit:$(ISAAC_SIM_PATH)/kit/kernel/plugins:$(ISAAC_SIM_PATH)/kit/libs/iray:$(ISAAC_SIM_PATH)/kit/plugins:$(ISAAC_SIM_PATH)/kit/plugins/bindings-python:$(ISAAC_SIM_PATH)/kit/plugins/carb_gfx:$(ISAAC_SIM_PATH)/kit/plugins/rtx:$(ISAAC_SIM_PATH)/kit/plugins/gpu.foundation" && \
 		export PYTHONPATH="$$PYTHONPATH:$(ISAAC_SIM_PATH)/kit/kernel/py:$(ISAAC_SIM_PATH)/kit/plugins/bindings-python:$(ISAAC_SIM_PATH)/exts/isaacsim.simulation_app:$(ISAAC_SIM_PATH)/python_packages" && \
+		python run.py; \
+	elif [ -d "$(CONDA_ENV_PREFIX)" ]; then \
+		eval "$$(conda shell.bash hook)" && \
+		conda activate "$(CONDA_ENV_PREFIX)" && \
 		python run.py; \
 	else \
 		python run.py; \
