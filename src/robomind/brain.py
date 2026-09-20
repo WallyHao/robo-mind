@@ -6,6 +6,7 @@ import os
 import sys
 import traceback
 
+from robomind import __version__
 from robomind.comm.lcm_bridge import LcmBridge
 from robomind.config.brain_config import BrainConfig
 from robomind.config.loader import load_brain_config, load_task_planner_prompt
@@ -33,8 +34,14 @@ def _strip_markdown_fence(raw: str) -> str:
 
 def _setup_imports() -> None:
     for key in (
-        "http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY",
-        "all_proxy", "ALL_PROXY", "socks_proxy", "SOCKS_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "all_proxy",
+        "ALL_PROXY",
+        "socks_proxy",
+        "SOCKS_PROXY",
     ):
         os.environ.pop(key, None)
 
@@ -105,7 +112,7 @@ def main() -> None:
 
     logger.info("brain ready | %d skills registered", len(registry))
 
-    print(f"RoboMind v0.1.0 — {len(registry)} skills loaded. Type /help for commands.\n")
+    print(f"RoboMind v{__version__} — {len(registry)} skills loaded. Type /help for commands.\n")
 
     try:
         _repl(registry, planner, config)
@@ -159,9 +166,7 @@ def _dry_run(planner: TaskPlanner, command: str) -> None:
         tasks = planner.parse(command)
         for i, t in enumerate(tasks, 1):
             print(
-                f"  [{i}] {t.skill}: "
-                f"{json.dumps(t.params, ensure_ascii=False)}"
-                f"  # {t.description}"
+                f"  [{i}] {t.skill}: {json.dumps(t.params, ensure_ascii=False)}  # {t.description}"
             )
         print()
     except LLMParseError as e:

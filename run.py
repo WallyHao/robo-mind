@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 import os
-import signal
 import subprocess
 import sys
 import time
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Any
 
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
 
 console = Console()
+
+try:
+    __version__ = version("robomind")
+except PackageNotFoundError:  # running from a source checkout without install
+    __version__ = "0.2.0"
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _SRC_DIR = _PROJECT_ROOT / "src"
@@ -41,7 +44,7 @@ def main() -> None:
     console.print()
     console.print(
         Panel.fit(
-            "[bold bright_white]RoboMind[/bold bright_white] v0.1.0",
+            f"[bold bright_white]RoboMind[/bold bright_white] v{__version__}",
             subtitle="[dim]body + brain dual-process architecture[/dim]",
         )
     )
@@ -62,10 +65,9 @@ def main() -> None:
 def _check_env() -> None:
     env_file = _PROJECT_ROOT / ".env"
     if not env_file.exists():
-        console.print(
-            f"[{_COLOR_WARN}]WARNING: .env file not found at {env_file}[/{_COLOR_WARN}]"
-        )
-        console.print(f"[{_COLOR_DIM}]  copy .env.example to .env and fill in your API keys[/{_COLOR_DIM}]")
+        console.print(f"[{_COLOR_WARN}]WARNING: .env file not found at {env_file}[/{_COLOR_WARN}]")
+        console.print(f"[{_COLOR_DIM}]  copy .env.example to .env[/{_COLOR_DIM}]")
+        console.print(f"[{_COLOR_DIM}]  then fill in your API keys[/{_COLOR_DIM}]")
     else:
         console.print(f"[{_COLOR_DIM}]using .env from {env_file}[/{_COLOR_DIM}]")
 
@@ -75,7 +77,8 @@ def _check_env() -> None:
             f"[{_COLOR_ERROR}]ERROR: DIMOS_SITE_PATH not set or path not found[/{_COLOR_ERROR}]"
         )
         console.print(
-            f"[{_COLOR_DIM}]  set DIMOS_SITE_PATH in .env to the dimOS site-packages directory[/{_COLOR_DIM}]"
+            f"[{_COLOR_DIM}]  set DIMOS_SITE_PATH in .env to the dimOS "
+            f"site-packages directory[/{_COLOR_DIM}]"
         )
         sys.exit(1)
 
@@ -99,7 +102,9 @@ def _start_body() -> None:
     processes.append(p)
     console.print(f"[{_COLOR_DIM}]  body pid={p.pid}[/{_COLOR_DIM}]")
 
-    console.print(f"[{_COLOR_INFO}]waiting for body to signal ready (odom channel)...[/{_COLOR_INFO}]")
+    console.print(
+        f"[{_COLOR_INFO}]waiting for body to signal ready (odom channel)...[/{_COLOR_INFO}]"
+    )
 
     attempts = 0
     max_attempts = 30
@@ -108,11 +113,14 @@ def _start_body() -> None:
         attempts += 1
         if p.poll() is not None:
             console.print(
-                f"[{_COLOR_ERROR}]ERROR: body process exited with code {p.returncode}[/{_COLOR_ERROR}]"
+                f"[{_COLOR_ERROR}]ERROR: body process exited "
+                f"with code {p.returncode}[/{_COLOR_ERROR}]"
             )
             if p.stdout:
                 tail = p.stdout.read()
-                console.print(f"[{_COLOR_DIM}]{tail.decode(errors='replace')[-500:]}[/{_COLOR_DIM}]")
+                console.print(
+                    f"[{_COLOR_DIM}]{tail.decode(errors='replace')[-500:]}[/{_COLOR_DIM}]"
+                )
             sys.exit(1)
         console.print(f"[{_COLOR_DIM}]  waiting... ({attempts}/{max_attempts})[/{_COLOR_DIM}]")
 
