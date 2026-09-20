@@ -5,8 +5,6 @@ import threading
 import time
 from collections.abc import Callable
 
-import lcm
-
 from .types import Odometry, RoboImage, Twist
 
 logger = logging.getLogger(__name__)
@@ -20,6 +18,10 @@ class LcmBridge:
     """
 
     def __init__(self, *, body_mode: bool = False) -> None:
+        # Imported lazily so the package (and its offline tests) do not require
+        # the LCM native bindings just to import this module.
+        import lcm
+
         self._lc = lcm.LCM()
         self._body_mode = body_mode
         self._running = True

@@ -2,23 +2,29 @@ from __future__ import annotations
 
 import base64
 import dataclasses
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
 
-if TYPE_CHECKING:
-    from dimos.msgs.sensor_msgs.Image import Image as RoboImage
+# dimOS supplies the LCM message types that travel on the wire. It is a large,
+# externally installed dependency, so it is imported optionally: the pure
+# dataclasses and helpers below stay importable (and testable) without it.
+try:
+    from dimos.msgs.geometry_msgs.Pose import Pose  # noqa: F401
+    from dimos.msgs.geometry_msgs.Twist import Twist  # noqa: F401
+    from dimos.msgs.nav_msgs.Odometry import Odometry  # noqa: F401
+    from dimos.msgs.sensor_msgs.Image import Image as RoboImage  # noqa: F401
+    from dimos.msgs.sensor_msgs.Image import ImageFormat  # noqa: F401
 
-# The original project imported dimOS message types by their full paths.
-# We re-export them here so the rest of the codebase has a single import source.
-# These may raise ImportError if dimOS is not installed — the caller is expected
-# to configure sys.path before importing this module.
-from dimos.msgs.geometry_msgs.Pose import Pose  # noqa: F401
-from dimos.msgs.geometry_msgs.Twist import Twist  # noqa: F401
-from dimos.msgs.nav_msgs.Odometry import Odometry  # noqa: F401
-from dimos.msgs.sensor_msgs.Image import Image as RoboImage  # noqa: F401
-from dimos.msgs.sensor_msgs.Image import ImageFormat  # noqa: F401
+    DIMOS_AVAILABLE = True
+except ImportError:  # pragma: no cover - only when dimOS is not installed
+    Pose = None
+    Twist = None
+    Odometry = None
+    RoboImage = None
+    ImageFormat = None
+    DIMOS_AVAILABLE = False
 
 __all__ = [
     "Twist",
@@ -26,6 +32,7 @@ __all__ = [
     "Odometry",
     "RoboImage",
     "ImageFormat",
+    "DIMOS_AVAILABLE",
     "Task",
     "BBox",
     "OpenAICompatibleVlModel",
@@ -102,9 +109,7 @@ def to_numpy_rgb(rgb_value: object) -> npt.NDArray[np.uint8]:
     if rgb_array.shape[2] == 4:
         rgb_array = rgb_array[:, :, :3]
     elif rgb_array.shape[2] != 3:
-        raise ValueError(
-            f"unexpected channel count={rgb_array.shape[2]}, shape={rgb_array.shape}"
-        )
+        raise ValueError(f"unexpected channel count={rgb_array.shape[2]}, shape={rgb_array.shape}")
 
     if rgb_array.dtype != np.uint8:
         if np.issubdtype(rgb_array.dtype, np.floating):
