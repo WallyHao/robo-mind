@@ -55,9 +55,7 @@ class TaskPlanner:
             data = json.loads(raw)
         except json.JSONDecodeError as err:
             logger.error("LLM response parse failed, raw=%s", raw)
-            raise LLMParseError(
-                f"failed to parse LLM output as JSON: {raw[:200]}"
-            ) from err
+            raise LLMParseError(f"failed to parse LLM output as JSON: {raw[:200]}") from err
 
         if not isinstance(data, list):
             raise LLMParseError(f"expected JSON array, got {type(data).__name__}")

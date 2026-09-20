@@ -25,9 +25,7 @@ class VlmConfig(BaseModel):
     deepseek: VlmBackendConfig = Field(
         default_factory=lambda: VlmBackendConfig(model="deepseek-vl2")
     )
-    openai: VlmBackendConfig = Field(
-        default_factory=lambda: VlmBackendConfig(model="gpt-4o")
-    )
+    openai: VlmBackendConfig = Field(default_factory=lambda: VlmBackendConfig(model="gpt-4o"))
 
 
 class LcmSubscribeChannel(BaseModel):

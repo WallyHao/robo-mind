@@ -17,6 +17,5 @@ class GetPositionSkill:
         if odom is None:
             return "no odometry data yet, check if body.py is running"
         return (
-            f"position: x={odom.x:.3f}, y={odom.y:.3f}, z={odom.z:.3f}\n"
-            f"  yaw: {odom.yaw:.3f} rad"
+            f"position: x={odom.x:.3f}, y={odom.y:.3f}, z={odom.z:.3f}\n  yaw: {odom.yaw:.3f} rad"
         )

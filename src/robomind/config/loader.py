@@ -28,7 +28,7 @@ def _apply_env_overrides(data: dict[str, object], prefix: str) -> dict[str, obje
     prefix_upper = prefix.upper() + "_"
     for key, value in os.environ.items():
         if key.startswith(prefix_upper):
-            yaml_key = key[len(prefix_upper):].lower()
+            yaml_key = key[len(prefix_upper) :].lower()
             data[yaml_key] = value
     return data
 
