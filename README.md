@@ -1,6 +1,6 @@
 # RoboMind
 
-[![CI](https://github.com/WallyHao/robomind/actions/workflows/ci.yml/badge.svg)](https://github.com/WallyHao/robomind/actions/workflows/ci.yml)
+[![CI](https://github.com/WallyHao/robo-mind/actions/workflows/ci.yml/badge.svg)](https://github.com/WallyHao/robo-mind/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
 [![Ruff](https://img.shields.io/badge/lint-ruff-261230.svg)](https://github.com/astral-sh/ruff)
@@ -63,7 +63,7 @@ flowchart LR
 ## Install
 
 ```bash
-git clone https://github.com/WallyHao/robomind.git
+git clone https://github.com/WallyHao/robo-mind.git
 cd robomind
 
 python -m venv .venv

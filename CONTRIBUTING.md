@@ -7,7 +7,7 @@ are welcome.
 ## Development Setup
 
 ```bash
-git clone https://github.com/WallyHao/robomind.git
+git clone https://github.com/WallyHao/robo-mind.git
 cd robomind
 python -m venv .venv
 . .venv/bin/activate

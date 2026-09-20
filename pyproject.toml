@@ -60,10 +60,10 @@ robomind-body = "robomind.body:main"
 robomind-brain = "robomind.brain:main"
 
 [project.urls]
-Homepage = "https://github.com/WallyHao/robomind"
-Repository = "https://github.com/WallyHao/robomind"
-Issues = "https://github.com/WallyHao/robomind/issues"
-Changelog = "https://github.com/WallyHao/robomind/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/WallyHao/robo-mind"
+Repository = "https://github.com/WallyHao/robo-mind"
+Issues = "https://github.com/WallyHao/robo-mind/issues"
+Changelog = "https://github.com/WallyHao/robo-mind/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
