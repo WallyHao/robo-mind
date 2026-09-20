@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test run clean
+.PHONY: install lint format typecheck test run clean
 
 SHELL := /bin/bash
 
@@ -14,7 +14,11 @@ install:
 	pre-commit install
 
 lint:
-	ruff check src/ tests/
+	ruff check .
+	ruff format --check .
+
+format:
+	ruff format .
 
 typecheck:
 	mypy src/
