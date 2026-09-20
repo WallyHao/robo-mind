@@ -1,53 +1,77 @@
 # RoboMind
 
-Embodied robot control with a dual-process body/brain architecture over LCM.
+[![CI](https://github.com/WallyHao/robomind/actions/workflows/ci.yml/badge.svg)](https://github.com/WallyHao/robomind/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+[![Ruff](https://img.shields.io/badge/lint-ruff-261230.svg)](https://github.com/astral-sh/ruff)
+[![Mypy](https://img.shields.io/badge/type-mypy%20strict-2a6db2.svg)](https://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/tests-37%20passing-brightgreen.svg)](tests)
 
+**Embodied robot control with a dual-process body/brain architecture over LCM.**
+
+RoboMind drives a simulated robot from natural language. A language model
+decomposes an instruction into atomic skill tasks, and a skill layer executes
+them against a physics simulation. The two halves run as **separate OS
+processes** that talk only through LCM channels, so the planner and the
+simulation can be developed, replaced and restarted independently.
+
+## Highlights
+
+- **Dual-process design** — a `brain` process (LLM planning + REPL) and a
+  `body` process (OmniGibson / Isaac Sim) communicate exclusively over LCM.
+- **Natural-language task planning** — DeepSeek decomposes an instruction into
+  a JSON list of skill calls with parameters.
+- **VLM perception** — Qwen / DeepSeek / OpenAI vision models locate objects in
+  the camera frame for visual closed-loop approach.
+- **Six composable skills** — navigation, turning, stopping, position query,
+  object lookup and visual navigation.
+- **Typed and validated** — `mypy --strict` on the source tree and pydantic
+  models for every configuration file.
+- **Offline test suite** — the planner, VLM parsing, skills, LCM bridge and
+  configuration are tested without a simulator or a GPU.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Brain[brain process]
+        REPL[CLI REPL] --> Planner[LLM task planner]
+        Planner --> Registry[Skill registry]
+        Registry --> Skills[Skills]
+    end
+    subgraph Body[body process]
+        Sim[OmniGibson / Isaac Sim] --> Loop[Simulation loop]
+    end
+    Skills -- "/cmd_vel" --> LCM((LCM))
+    Loop -- "/odom + /camera_rgb" --> LCM
 ```
 
-RoboMind/
-├── src/robomind/       Core source code
-│   ├── body.py         Physics simulation process
-│   ├── brain.py        LLM task planning + CLI REPL
-│   ├── skills/         Skill implementations
-│   ├── llm/            LLM/VLM integration
-│   ├── comm/           LCM communication layer
-│   └── config/         pydantic config models
-├── configs/            YAML configuration files
-├── tests/              pytest test suite
-├── training/           Pi05 model training utilities
-├── run.py              Colored terminal launcher
-└── scripts/            Utility scripts
-```
+- `brain.py` subscribes to `/odom` and `/camera_rgb` and publishes `/cmd_vel`.
+- `body.py` subscribes to `/cmd_vel` and publishes `/odom` and `/camera_rgb`.
+- `LcmBridge` wraps `lcm.LCM()` with a background handler thread and
+  thread-safe accessors, and is shared by both processes.
 
-## Prerequisites
+## Requirements
 
 | Requirement | Notes |
-|-------------|-------|
+| --- | --- |
 | NVIDIA GPU + CUDA 12.x | Required for Isaac Sim / OmniGibson |
-| Isaac Sim | Requires [NVIDIA Omniverse](https://www.nvidia.com/en-us/omniverse/) license |
-| Python 3.10+ | Recommend conda or venv |
+| Isaac Sim | Requires an [NVIDIA Omniverse](https://www.nvidia.com/en-us/omniverse/) license |
+| Python 3.11 | Isaac Sim's `carb._carb` extension needs 3.11; the library itself runs on 3.10+ |
+| dimOS | Provides the LCM message types; installed externally |
 
-## Setup
-
-### 1. Clone and create environment
+## Install
 
 ```bash
-git clone <repo-url> RoboMind
-cd RoboMind
+git clone https://github.com/WallyHao/robomind.git
+cd robomind
 
-conda create -n robomind python=3.10 -y
-conda activate robomind
-
+python -m venv .venv
+. .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-> ```bash
-> pip install -e ".[dev]" -i https://pypi.tuna.tsinghua.edu.cn/simple
-> ```
-
-### 2. Install external dependencies
-
-The project depends on three large external projects that are **not** included in this repo.
+The simulation stack is installed separately and is **not** included here:
 
 **dimOS** — LCM messaging, navigation and perception
 
@@ -58,7 +82,7 @@ pip install -e .
 cd ..
 ```
 
-**BEHAVIOR-1K + OmniGibson** — Simulation environment
+**BEHAVIOR-1K + OmniGibson** — simulation environment
 
 ```bash
 git clone https://github.com/StanfordVL/BEHAVIOR-1K.git
@@ -68,24 +92,11 @@ pip install -e OmniGibson/
 cd ..
 ```
 
-**Pi05 Model** (training only, optional)
-
-```bash
-export HF_ENDPOINT=https://hf-mirror.com
-
-pip install huggingface_hub
-python training/download_model.py
-```
-
-### 3. Configure
-
-Copy the environment template and fill in your values:
+Then copy the environment template and fill in your values:
 
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your settings:
 
 ```env
 DEEPSEEK_API_KEY=sk-xxxxxxxx          # DeepSeek API key (LLM)
@@ -94,35 +105,11 @@ DIMOS_SITE_PATH=/path/to/dimos/site-packages
 BEHAVIOR_DIR=/path/to/BEHAVIOR-1K
 ```
 
-### 4. Run
+## Run
 
 ```bash
 make run
 ```
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `make install` | Install project + dev dependencies |
-| `make lint` | Run ruff linter |
-| `make typecheck` | Run mypy strict type checking |
-| `make test` | Run pytest with coverage |
-| `make run` | Launch body + brain processes |
-| `make clean` | Remove caches and logs |
-
-## Skills
-
-| Skill | Description |
-|-------|-------------|
-| `navigate` | Blind timed navigation |
-| `stop` | Immediate halt |
-| `turn` | Rotate in place |
-| `get_position` | Query current coordinates |
-| `look` | VLM object detection in camera |
-| `navigate_to_object` | Visual closed-loop approach |
-
-## REPL Usage
 
 ```
 RoboMind> go to the door
@@ -138,3 +125,42 @@ RoboMind> /dry <cmd> # preview task plan without executing
 RoboMind> /pos       # query current position
 RoboMind> exit       # quit
 ```
+
+## Skills
+
+| Skill | Description |
+| --- | --- |
+| `navigate` | Timed open-loop navigation |
+| `stop` | Immediate halt |
+| `turn` | Rotate in place |
+| `get_position` | Query current coordinates |
+| `look` | VLM object detection in the camera frame |
+| `navigate_to_object` | Visual closed-loop approach |
+
+## Configuration
+
+| File | Purpose |
+| --- | --- |
+| `configs/body.yaml` | OmniGibson scene / robot / timing / LCM settings |
+| `configs/brain.yaml` | LLM and VLM backend selection, LCM channels, logging |
+| `configs/prompts/task_planner.txt` | LLM system prompt for task decomposition |
+| `.env` | API keys and machine-specific paths |
+
+All YAML files are validated with pydantic at load time.
+
+## Development
+
+```bash
+make lint        # ruff check + format check
+make typecheck   # mypy --strict on src/
+make test        # pytest with coverage
+make run         # launch body + brain
+make clean       # remove caches and logs
+```
+
+The tests are offline: they fake LCM and the LLM/VLM APIs, so no GPU,
+simulator or API key is needed. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+Released under the [MIT License](LICENSE).
