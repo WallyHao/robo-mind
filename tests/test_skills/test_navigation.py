@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from robomind.skills.navigation import StopSkill
+from robomind.skills.navigation import NavigateSkill, StopSkill, TurnSkill
 from robomind.skills.positioning import GetPositionSkill
 from robomind.skills.registry import SkillRegistry
 
@@ -27,6 +27,22 @@ class TestStopSkill:
         skill = StopSkill(lcm)
         result = skill.execute()
         assert result == "halted"
+        assert lcm.published == [(0.0, 0.0)]
+
+
+class TestNavigateSkill:
+    def test_zero_duration_stops(self) -> None:
+        lcm = FakeLcmBridge()
+        result = NavigateSkill(lcm).execute(duration=0.0)
+        assert "navigate done" in result
+        assert lcm.published == [(0.0, 0.0)]
+
+
+class TestTurnSkill:
+    def test_zero_duration_stops(self) -> None:
+        lcm = FakeLcmBridge()
+        result = TurnSkill(lcm).execute(direction="left", duration=0.0)
+        assert result == "turned left for 0.0s"
         assert lcm.published == [(0.0, 0.0)]
 
 
