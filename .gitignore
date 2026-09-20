@@ -4,9 +4,14 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.venv/
+.venv*/
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 .env
 logs/*.log
@@ -18,4 +23,3 @@ logs/*.log.*
 *.zip
 
 .Trash-*/
-extend
