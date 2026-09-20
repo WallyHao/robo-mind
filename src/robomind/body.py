@@ -34,6 +34,7 @@ def _setup_imports() -> None:
 
 
 def _setup_logging() -> None:
+    os.makedirs("logs", exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)-5s] %(name)s: %(message)s",
@@ -53,8 +54,9 @@ def main() -> None:
 
     config = load_body_config()
 
-    logger.info("initializing OmniGibson: scene=%s robot=%s",
-                 config.scene.scene_model, config.robot.type)
+    logger.info(
+        "initializing OmniGibson: scene=%s robot=%s", config.scene.scene_model, config.robot.type
+    )
 
     env = og.Environment(configs=config.og_config)
     robot = env.robots[0]
@@ -90,7 +92,9 @@ def main() -> None:
 
             if step_count % config.timing.camera_publish_every_n_steps == 0:
                 _publish_camera(
-                    lcm, obs, robot,
+                    lcm,
+                    obs,
+                    robot,
                     quality=config.lcm.publish_camera.jpeg_quality,
                     source_logged=camera_source_logged,
                     missing_logged=camera_missing_logged,
@@ -147,7 +151,9 @@ def _publish_camera(
         if not source_logged:
             logger.info(
                 "camera source: %s, shape=%s, dtype=%s",
-                _rgb_path, rgb_array.shape, rgb_array.dtype,
+                _rgb_path,
+                rgb_array.shape,
+                rgb_array.dtype,
             )
 
         img_msg = RoboImage.from_numpy(
